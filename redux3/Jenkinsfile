@@ -15,8 +15,7 @@ pipeline {
                     
                     // Build the Docker image
                     sh 'docker build -t react-app redux3/'
-                   
-                }
+                   }
             }
          }
          stage('Run Docker Container') {
