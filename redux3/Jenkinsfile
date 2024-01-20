@@ -14,7 +14,7 @@ pipeline {
                 script {
                     
                     // Build the Docker image
-                    sh 'docker build -t react-app .'
+                    sh 'docker build -t react-app redux3/'
                    
                 }
             }
@@ -35,7 +35,7 @@ pipeline {
                     }
 
                     // Run the Docker container
-                    sh "docker run -p 3000:3000 -d --name react-app-container react-app"
+                    sh "docker run -p 3001:3000 -d --name react-app-container react-app"
                     }
             }
           
