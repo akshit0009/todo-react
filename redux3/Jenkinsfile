@@ -14,7 +14,7 @@ pipeline {
                 script {
                     
                     // Build the Docker image
-                    sh 'docker build -t react-app .'
+                    sh 'docker build -t react-app redux3/'
                    
                 }
             }
