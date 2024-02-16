@@ -38,13 +38,18 @@ pipeline {
                     }
                }
          }
-        stage('Push Logs to CloudWatch') {
-            steps {
-                // Push build logs to CloudWatch Logs
-                sh 'aws logs push /jenkins/jobs build.log'
-            }
-        }
-        
+}
+
+        post {
+        always {
+            // Publish logs to CloudWatch Logs
+            step([$class: 'CloudWatchLogsPublisher',
+                  logGroupName: '/jenkins/jobs', // Specify your log group name here
+                  logStreamName: "${JOB_NAME}-${BUILD_NUMBER}",
+                  region: 'ap-south-1', // Replace with your AWS region
+                  credentialsId: 'my-aws-credentials-id',
+                  logFile: 'build.log']) // Specify your log file name here
+        }        
     }
 }
 
