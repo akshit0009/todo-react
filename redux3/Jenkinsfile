@@ -44,7 +44,7 @@ pipeline {
         always {
             // Publish logs to CloudWatch Logs
             step([$class: 'CloudWatchLogsPublisher',
-                  logGroupName: '/jenkins/jobs', // Specify your log group name here
+                  logGroupName: 'my-logs', // Specify your log group name here
                   logStreamName: "${JOB_NAME}-${BUILD_NUMBER}",
                   region: 'ap-south-1', // Replace with your AWS region
                   credentialsId: 'my-aws-credentials-id',
