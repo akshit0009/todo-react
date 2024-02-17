@@ -36,7 +36,7 @@ pipeline {
          stage('Push Logs to CloudWatch') {
             steps {
                 // Push build logs to CloudWatch Logs
-                sh 'aws logs push my-log-group build.log'
+                sh 'aws logs push my-logs-group build.log'
             }
         }
     }
