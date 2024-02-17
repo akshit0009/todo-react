@@ -29,7 +29,7 @@ pipeline {
                     sh "docker rm ${containerName} || true"
 
                     // Run the Docker container
-                    sh "docker run -p 3000:3000 -d --name ${containerName} react-app | tee build.log"
+                    sh "docker run -p 3000:3000 -d --name ${containerName} react-app > build.log 2>&1"
                 }
             }
         }
