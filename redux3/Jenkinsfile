@@ -30,9 +30,7 @@ pipeline {
 
                     // Run the Docker container with AWS CloudWatch Logs integration
                     sh "docker run -dit 
-                    --log-driver=awslogs 
-                    --log-opt awslogs-region=ap-south-1
-                    --log-opt awslogs-group=my-logs-group-todo -p 3000:3000 --name ${containerName} react-app > build.log 2>&1"
+                    --log-driver=awslogs --log-opt awslogs-group=my-logs-group -p 3000:3000 --name ${containerName} react-app > build.log 2>&1"
                 }
             }
         }
