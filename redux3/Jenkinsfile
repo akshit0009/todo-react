@@ -33,11 +33,33 @@ pipeline {
                 }
             }
         }
-        stage('Publish to CloudWatch Logs') {
+        stage('Log Events') {
             steps {
                 script {
-                    def timestamp = currentTimestamp
-                    sh "aws logs put-log-events --log-group-name my-logs-group --log-stream-name 20240217 --region ap-south-1 --log-events '[{\"message\": \"Example log event 1\", \"timestamp\": ${timestamp}}]'"
+                    def timestamp = new Date().format('yyyy-MM-dd\'T\'HH:mm:ssZ')
+                    def logEvents = """[
+                        {
+                            "message": "Example log event 1",
+                            "timestamp": "${timestamp}"
+                        },
+                        {
+                            "message": "Example log event 2",
+                            "timestamp": "${timestamp}"
+                        }
+                    ]"""
+
+                    def credentialsId = 'my-aws-credentials-id'
+                    def region = 'ap-south-1'
+                    def logGroupName = 'my-logs-group'
+                    def logStreamName = '20240217'
+
+                    sh """
+                        aws logs put-log-events --log-group-name ${logGroupName} --log-stream-name ${logStreamName} --log-events file:///dev/stdin <<EOF
+                        ${logEvents}
+                        EOF
+                    """
+                    env.AWS_ACCESS_KEY_ID = credentialsId
+                    env.AWS_SECRET_ACCESS_KEY = credentialsId + ':my-secret-key'
                 }
             }
         }
