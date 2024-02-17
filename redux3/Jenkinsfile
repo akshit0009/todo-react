@@ -33,43 +33,5 @@ pipeline {
                 }
             }
         }
-
-        stage('Log Events') {
-            steps {
-                script {
-                    def timestamp = new Date().time.toLong() // Convert timestamp to long
-                    def logEvents = """[
-                        {
-                            "message": "Example log event 1",
-                            "timestamp": ${timestamp}
-                        },
-                        {
-                            "message": "Example log event 2",
-                            "timestamp": ${timestamp}
-                        }
-                    ]"""
-
-                    def credentialsId = 'my-aws-credentials-id'
-                    def region = 'ap-south-1'
-                    def logGroupName = 'my-logs-group'
-                    def logStreamName = '20240217'
-
-                    sh """
-                        aws logs put-log-events --log-group-name ${logGroupName} --log-stream-name ${logStreamName} --region ${region} --log-events file:///dev/stdin <<EOF
-                        ${logEvents}
-                        EOF
-                    """
-                    env.AWS_ACCESS_KEY_ID = credentialsId
-                    env.AWS_SECRET_ACCESS_KEY = credentialsId + ':my-secret-key'
-                }
-            }
-        }
-    }
-  
-    post {
-        success {
-            // Push build logs to CloudWatch Logs
-            sh 'aws logs push my-logs-group build.log'
-        }
     }
 }
