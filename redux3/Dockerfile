@@ -6,4 +6,5 @@ COPY package.json .
 RUN npm install
 EXPOSE 3000
 COPY . .
-CMD ["npm", "start"]
+
+CMD ["sh", "-c", "echo \"$(date +'%Y-%m-%dT%H:%M:%SZ') build started\" >> /app/build.log && npm start"]
