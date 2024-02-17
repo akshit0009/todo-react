@@ -13,8 +13,12 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
-                    sh 'docker build -t react-app redux3/'
+                    def dockerImageName = 'react-app'
+                    def dockerfilePath = 'Dockerfile'
+
+                    def dockerBuildCommand = "docker build -t ${dockerImageName} . --build-arg BUILD_TIMESTAMP=$(date +'%Y-%m-%dT%H:%M:%SZ')"
+
+                    sh "${dockerBuildCommand}"
                 }
             }
         }
@@ -29,7 +33,7 @@ pipeline {
                     sh "docker rm ${containerName} || true"
 
                     // Run the Docker container
-                    sh "docker run -p 3000:3000 -d --name ${containerName} react-app > build.log 2>&1"
+                    sh "docker run -p 3000:3000 -d --name ${containerName} ${dockerImageName} > build.log 2>&1"
                 }
             }
         }
@@ -43,8 +47,8 @@ pipeline {
                             "timestamp": "${timestamp}"
                         },
                         {
-                            "message": "Example log event 2",
-                            "timestamp": "${timestamp}"
+                            "message": "Build started at ${BUILD_ENVIRONMENT_TIMESTAMP}",
+                            "timestamp": "${BUILD_TIMESTAMP}"
                         }
                     ]"""
 
@@ -52,6 +56,8 @@ pipeline {
                     def region = 'ap-south-1'
                     def logGroupName = 'my-logs-group'
                     def logStreamName = '20240217'
+
+                    def buildTimestamp = env.BUILD_TIMESTAMP
 
                     sh """
                         aws logs put-log-events --log-group-name ${logGroupName} --log-stream-name ${logStreamName} --log-events file:///dev/stdin <<EOF
@@ -64,6 +70,4 @@ pipeline {
             }
         }
     }
-
-    
 }
