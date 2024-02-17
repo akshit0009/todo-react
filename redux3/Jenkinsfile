@@ -55,7 +55,7 @@ pipeline {
                     def logStreamName = '20240217'
 
                     sh """
-                        aws logs put-log-events --log-group-name ${logGroupName} --log-stream-name ${logStreamName} --log-events file:///dev/stdin <<EOF
+                        aws logs put-log-events --log-group-name ${logGroupName} --log-stream-name ${logStreamName} --region ${region} --log-events file:///dev/stdin <<EOF
                         ${logEvents}
 EOF
                     """
