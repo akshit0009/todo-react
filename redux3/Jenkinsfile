@@ -28,8 +28,8 @@ pipeline {
                     sh "docker stop ${containerName} || true"
                     sh "docker rm ${containerName} || true"
 
-                    // Run the Docker container
-                    sh "docker run -p 3000:3000 -d --name ${containerName} react-app > build.log 2>&1"
+                    // Run the Docker container with AWS CloudWatch Logs integration
+                    sh "docker run -dit --log-driver=awslogs --log-opt awslogs-group=my-logs-group -p 3000:3000 --name ${containerName} react-app > build.log 2>&1"
                 }
             }
         }
@@ -37,18 +37,17 @@ pipeline {
         stage('Log Events') {
             steps {
                 script {
-                    def timestampMillis = new Date().time // Get current timestamp in milliseconds
-
-                    def logEvents = [
-                        [
-                            message: "Example log event 1",
-                            timestamp: timestampMillis.toLong() / 1000 // Convert milliseconds to seconds
-                        ],
-                        [
-                            message: "Example log event 2",
-                            timestamp: timestampMillis.toLong() / 1000 // Convert milliseconds to seconds
-                        ]
-                    ]
+                    def timestamp = new Date().time.toLong() // Convert timestamp to long
+                    def logEvents = """[
+                        {
+                            "message": "Example log event 1",
+                            "timestamp": ${timestamp}
+                        },
+                        {
+                            "message": "Example log event 2",
+                            "timestamp": ${timestamp}
+                        }
+                    ]"""
 
                     def credentialsId = 'my-aws-credentials-id'
                     def region = 'ap-south-1'
