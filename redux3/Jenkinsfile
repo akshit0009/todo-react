@@ -37,6 +37,18 @@ pipeline {
         stage('Log Events') {
     steps {
         script {
+            def credentialsId = 'my-aws-credentials-id'
+            def region = 'ap-south-1'
+            def logGroupName = 'my-log-group'
+            def logStreamName = 'my-log-stream'
+
+            // Create the log group
+            sh "aws logs create-log-group --log-group-name ${logGroupName} --region ${region}"
+
+            // Create the log stream
+            sh "aws logs create-log-stream --log-group-name ${logGroupName} --log-stream-name ${logStreamName} --region ${region}"
+
+            // Put log events
             def timestamp = new Date().time
             def logEvents = """[
                 {
@@ -49,18 +61,6 @@ pipeline {
                 }
             ]"""
 
-            def credentialsId = 'my-aws-credentials-id'
-            def region = 'ap-south-1'
-            def logGroupName = 'my-log-group'
-            def logStreamName = '20240217'
-
-            // Create the log group
-            sh "aws logs create-log-group --log-group-name ${logGroupName} --region ${region}"
-
-            // Create the log stream
-            sh "aws logs create-log-stream --log-group-name ${logGroupName} --log-stream-name ${logStreamName} --region ${region}"
-
-            // Put log events
             sh """
                 aws logs put-log-events --log-group-name ${logGroupName} --log-stream-name ${logStreamName} --region ${region} --log-events file:///dev/stdin <<EOF
                 ${logEvents}
