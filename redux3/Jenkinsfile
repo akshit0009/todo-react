@@ -40,13 +40,14 @@ pipeline {
             }
         }
    post {
-        always {
-            script {
-                echo "Publishing logs to CloudWatch Logs"
-                echo "Log Stream Names: ${logStreamNames}"
-            }
+    always {
+        script {
+            echo "Publishing logs to CloudWatch Logs"
+            echo "Log Stream Names: ${BUILD_NUMBER}"
+        }
 
-            // Publish logs to CloudWatch Logs
+        // Publish logs to CloudWatch Logs
+        script {
             step([$class: 'CloudWatchLogsPublisher',
                   logGroupName: 'my-logs-group', // Specify your log group name here
                   logStreamNames: ["${BUILD_NUMBER}"], // Use dynamic log stream names
@@ -55,5 +56,7 @@ pipeline {
                   logFile: 'build.log']) // Specify your log file name here
         }
     }
+}
+
 }
 
