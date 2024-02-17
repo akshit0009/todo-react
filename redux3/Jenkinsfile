@@ -41,7 +41,7 @@ pipeline {
                 echo "Publishing logs to CloudWatch Logs"
             }
             // Publish logs to CloudWatch Logs
-            cloudwatchlogspublisher([
+            AWScloudwatchlogspublisher([
                 logGroupName: 'my-logs', // Specify your log group name here
                 logStreamNames: [env.BUILD_NUMBER], // Use dynamic log stream names
                 region: 'ap-south-1', // Replace with your AWS region
