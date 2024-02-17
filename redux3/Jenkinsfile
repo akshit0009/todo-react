@@ -16,7 +16,7 @@ pipeline {
                     def dockerImageName = 'react-app'
                     def dockerfilePath = 'Dockerfile'
 
-                    def dockerBuildCommand = "docker build -t ${dockerImageName} . --build-arg BUILD_TIMESTAMP=$(date +'%Y-%m-%dT%H:%M:%SZ')"
+                    def dockerBuildCommand = "docker build -t ${dockerImageName} . --build-arg BUILD_TIMESTAMP=$$(date +'%Y-%m-%dT%H:%M:%SZ')"
 
                     sh "${dockerBuildCommand}"
                 }
