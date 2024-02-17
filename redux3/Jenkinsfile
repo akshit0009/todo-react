@@ -33,13 +33,7 @@ pipeline {
                 }
             }
         }
-         stage('Push Logs to CloudWatch') {
-            steps {
-                // Push build logs to CloudWatch Logs
-                sh 'aws logs push my-logs-group build.log'
-            }
-        }
-        stages {
+
         stage('Log Events') {
             steps {
                 script {
@@ -63,12 +57,19 @@ pipeline {
                     sh """
                         aws logs put-log-events --log-group-name ${logGroupName} --log-stream-name ${logStreamName} --log-events file:///dev/stdin <<EOF
                         ${logEvents}
-                        EOF
+EOF
                     """
                     env.AWS_ACCESS_KEY_ID = credentialsId
                     env.AWS_SECRET_ACCESS_KEY = credentialsId + ':my-secret-key'
                 }
             }
+        }
     }
-} 
-   
+  
+    post {
+        success {
+            // Push build logs to CloudWatch Logs
+            sh 'aws logs push my-logs-group build.log'
+        }
+    }
+}
