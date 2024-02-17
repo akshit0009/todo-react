@@ -1,35 +1,40 @@
 pipeline {
     agent any
-
+   
     stages {
-        stage('Install Dependencies') {
+         stage('Install Dependencies') {
             steps {
                 script {
-                    sh 'npm install bootstrap react-bootstrap'
+                      sh 'npm install bootstrap react-bootstrap'
+                      }
+                  }
                 }
-            }
-        }
-
-        stage('Build Docker Image') {
+         stage('Build Docker Image') {
             steps {
                 script {
+                    
                     // Build the Docker image
                     sh 'docker build -t react-app redux3/'
+                   }
                 }
-            }
-        }
-
-        stage('Run Docker Container') {
+              }
+         stage('Run Docker Container') {
             steps {
                 script {
+                   
                     def containerName = 'react-app-container'
 
-                    // Stop and remove the existing container if it's running
-                    sh "docker stop ${containerName} || true"
-                    sh "docker rm ${containerName} || true"
+                    // Check if the container is already running
+                    def existingContainer = sh(script: "docker ps -a --filter name=${containerName} --format {{.Names}}", returnStatus: true)
 
-                    // Run the Docker container
-                    sh "docker run -p 3000:3000 -d --name ${containerName} react-app > build.log 2>&1"
+                    if (existingContainer == 0) {
+                        // Stop and remove the existing container
+                        sh "docker stop ${containerName} || true"
+                        sh "docker rm ${containerName} || true"
+                    }
+
+                    // Run the Docker container and save the logs to a file
+                    sh "docker run -p 3000:3000 -d --name react-app-container react-app > build.log 2>&1"
                 }
             }
         }
@@ -53,9 +58,16 @@ pipeline {
                     def logGroupName = 'my-logs-group'
                     def logStreamName = '20240217'
 
+                    // Read the contents of the build.log file
+                    def buildLogContents = readFile('build.log')
+
                     sh """
                         aws logs put-log-events --log-group-name ${logGroupName} --log-stream-name ${logStreamName} --log-events file:///dev/stdin <<EOF
                         ${logEvents}
+                        {
+                            "message": "${buildLogContents}",
+                            "timestamp": "${timestamp}"
+                        }
                         EOF
                     """
                     env.AWS_ACCESS_KEY_ID = credentialsId
