@@ -37,26 +37,31 @@ pipeline {
         stage('Log Events') {
             steps {
                 script {
-                    def timestamp = new Date().format('yyyy-MM-dd\'T\'HH:mm:ssZ')
-                    def logEvents = """[
-                        {
-                            "message": "Example log event 1",
-                            "timestamp": "${timestamp}"
-                        },
-                        {
-                            "message": "Example log event 2",
-                            "timestamp": "${timestamp}"
-                        }
-                    ]"""
+                    def timestampMillis = new Date().time // Get current timestamp in milliseconds
+                    def timestampSeconds = timestampMillis / 1000 // Convert milliseconds to seconds
+
+                    def logEvents = [
+                        [
+                            message: "Example log event 1",
+                            timestamp: timestampSeconds.toLong() // Convert timestamp to long
+                        ],
+                        [
+                            message: "Example log event 2",
+                            timestamp: timestampSeconds.toLong() // Convert timestamp to long
+                        ]
+                    ]
 
                     def credentialsId = 'my-aws-credentials-id'
                     def region = 'ap-south-1'
                     def logGroupName = 'my-logs-group'
                     def logStreamName = '20240217'
 
+                    // Convert logEvents to JSON string
+                    def logEventsJson = groovy.json.JsonOutput.toJson(logEvents)
+
                     sh """
                         aws logs put-log-events --log-group-name ${logGroupName} --log-stream-name ${logStreamName} --region ${region} --log-events file:///dev/stdin <<EOF
-                        ${logEvents}
+                        ${logEventsJson}
 EOF
                     """
                     env.AWS_ACCESS_KEY_ID = credentialsId
