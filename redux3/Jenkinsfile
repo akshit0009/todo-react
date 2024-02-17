@@ -32,9 +32,7 @@ pipeline {
                     sh "docker run -dit 
                     --log-driver=awslogs 
                     --log-opt awslogs-region=ap-south-1
-                    --log-opt awslogs-group=my-logs-group 
-                    --log-opt awslogs-creat-group=true
-                    -p 3000:3000 --name ${containerName} react-app > build.log 2>&1"
+                    --log-opt awslogs-group=my-logs-group -p 3000:3000 --name ${containerName} react-app > build.log 2>&1"
                 }
             }
         }
