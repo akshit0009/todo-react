@@ -51,7 +51,7 @@ pipeline {
 
                     def credentialsId = 'my-aws-credentials-id'
                     def region =        'ap-south-1'
-                    def logGroupName =  'my-logs'
+                    def logGroupName =  'my-logs-group'
                     def logStreamName = '20240217'
 
                     sh """
