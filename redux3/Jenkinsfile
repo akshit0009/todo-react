@@ -1,62 +1,53 @@
 pipeline {
     agent any
-   
+
     stages {
-         stage('Install Dependencies') {
+        stage('Install Dependencies') {
             steps {
                 script {
-                      sh 'npm install bootstrap react-bootstrap'
-                      }
-                  }
+                    sh 'npm install bootstrap react-bootstrap'
                 }
-         stage('Build Docker Image') {
-            steps {
-                script {
-                    
-                    // Build the Docker image
-                    sh 'docker build -t react-app redux3/'
-                   }
-                }
-              }
-         stage('Run Docker Container') {
-            steps {
-                script {
-                   
-                    def containerName = 'react-app-container'
-
-                    // Check if the container is already running
-                    def existingContainer = sh(script: "docker ps -a --filter name=${containerName} --format {{.Names}}", returnStatus: true)
-
-                    if (existingContainer == 0) {
-                        // Stop and remove the existing container
-                        sh "docker stop ${containerName} || true"
-                        sh "docker rm ${containerName} || true"
-                    }
-
-                    // Run the Docker container
-                    sh "docker run -p 3000:3000 -d --name react-app-container react-app > build.log 2>&1"
-                    }
-               }
             }
         }
-   post {
-    always {
-        script {
-            echo "Publishing logs to CloudWatch Logs"
-            echo "Log Stream Names: ${BUILD_NUMBER}"
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    sh 'docker build -t react-app redux3/'
+                }
+            }
         }
 
-        // Publish logs to CloudWatch Logs
-        script {
-            step([$class: 'CloudWatchLogsPublisher',
-                  logGroupName: 'my-logs-group', // Specify your log group name here
-                  logStreamNames: ["${BUILD_NUMBER}"], // Use dynamic log stream names
-                  region: 'ap-south-1', // Replace with your AWS region
-                  credentialsId: 'my-aws-credentials-id',
-                  logFile: 'build.log']) // Specify your log file name here
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    def containerName = 'react-app-container'
+
+                    // Stop and remove the existing container if it's running
+                    sh "docker stop ${containerName} || true"
+                    sh "docker rm ${containerName} || true"
+
+                    // Run the Docker container
+                    sh "docker run -p 3000:3000 -d --name ${containerName} react-app | tee build.log"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                echo "Publishing logs to CloudWatch Logs"
+            }
+            // Publish logs to CloudWatch Logs
+            cloudwatchlogspublisher([
+                logGroupName: 'my-logs', // Specify your log group name here
+                logStreamNames: [env.BUILD_NUMBER], // Use dynamic log stream names
+                region: 'ap-south-1', // Replace with your AWS region
+                credentialsId: 'my-aws-credentials-id',
+                logFile: 'build.log' // Specify your log file name here
+            ])
         }
     }
 }
-
-}
-
