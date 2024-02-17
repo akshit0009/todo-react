@@ -30,11 +30,6 @@ pipeline {
 
                     // Run the Docker container with AWS CloudWatch Logs integration
                     sh "docker run -dit --log-driver=awslogs --log-opt awslogs-group=my-logs-group -p 3000:3000 --name ${containerName} react-app > build.log 2>&1"
-
-                    // Retrieve CloudWatch Logs URL
-                    def cloudWatchLogsURL = sh(script: "aws logs describe-log-streams --log-group-name my-logs-group --log-stream-name-prefix ${containerName} --query 'logStreams[*].logStreamName' --output text --region ap-south-1", returnStdout: true).trim()
-
-                    echo "CloudWatch Logs URL: https://ap-south-1.console.aws.amazon.com/cloudwatch/home?region=ap-south-1#logEventViewer:group=my-logs-group;stream=${cloudWatchLogsURL}"
                 }
             }
         }
