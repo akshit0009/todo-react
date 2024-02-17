@@ -38,18 +38,13 @@ pipeline {
                     }
                }
          }
+         stage('Push Logs to CloudWatch') {
+            steps {
+                // Push build logs to CloudWatch Logs
+                sh 'aws logs push my-logs build.log'
+            }
+        }
 }
 
-        post {
-        always {
-            // Publish logs to CloudWatch Logs
-            step([$class: 'CloudWatchLogsPublisher',
-                  logGroupName: 'my-logs', // Specify your log group name here
-                  logStreamName: "20240216",
-                  region: 'ap-south-1', // Replace with your AWS region
-                  credentialsId: 'my-aws-credentials-id',
-                  logFile: 'build.log']) // Specify your log file name here
-        }        
-    }
 }
 
