@@ -34,12 +34,25 @@ pipeline {
                     }
 
                     // Run the Docker container
-                    // Run the Docker container with CloudWatch Logs as logging driver
-                    sh "docker run -p 3000:3000 -d --name react-app-container --log-driver=awslogs --log-opt awslogs-region=ap-south-1 --log-opt awslogs-group=my-logs react-app"
+                    sh "docker run -p 3000:3000 -d --name react-app-container react-app > build.log 2>&1"
                     }
                }
             }
         }
-    
-    }
+   post {
+    always {
+        script {
+            echo "Publishing logs to CloudWatch Logs"
+            echo "Log Stream Names: ${logStreamNames}"
+        }
+        // Publish logs to CloudWatch Logs
+        step([$class: 'CloudWatchLogsPublisher',
+              logGroupName: 'my-logs', // Specify your log group name here
+              logStreamNames: ["20240217"], // Provide valid log stream name(s) here
+              region: 'ap-south-1', // Replace with your AWS region
+              credentialsId: 'my-aws-credentials-id',
+              logFile: 'build.log']) // Specify your log file name here
+            }        
+       }
+}
 
