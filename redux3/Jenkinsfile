@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        CUSTOM_VERSION = '1.0.0' // Define your custom version here
+    }
+
     stages {
         stage('Install Dependencies') {
             steps {
@@ -13,22 +17,12 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
-                    
-                    sh 'id $USER'
-                    sh 'docker build -t react-app:2.0.${BUILD_NUMBER} redux3/'
+                    // Build the Docker image with custom version and build number
+                    sh "docker build -t react-app:${CUSTOM_VERSION}.${BUILD_NUMBER} -t react-app:latest redux3/"
                 }
             }
         }
-        /* stage('remove older Docker Image') {
-            steps {
-                script {
-                    // Build the Docker image
-                    
-                   sh 'docker rmi $(docker images -q | tail -n +5)'
-                }
-            }
-        } */
+
         stage('Run Docker Container') {
             steps {
                 script {
@@ -38,8 +32,9 @@ pipeline {
                     sh "docker stop ${containerName} || true"
                     sh "docker rm ${containerName} || true"
 
-                    // Run the Docker container with AWS CloudWatch Logs integration
-                    sh "docker run -dit --log-driver=awslogs --log-opt awslogs-group=my-logs-group --log-opt awslogs-create-group=true --log-opt awslogs-region=us-east-1 --log-opt awslogs-stream=${containerName}-stream -p 3000:3000 --name ${containerName} react-app:2.0.${BUILD_NUMBER} "                }
+                    // Run the Docker container with AWS CloudWatch Logs integration using custom version and build number
+                    sh "docker run -dit --log-driver=awslogs --log-opt awslogs-group=my-logs-group --log-opt awslogs-create-group=true --log-opt awslogs-region=us-east-1 --log-opt awslogs-stream=${containerName}-stream -p 3000:3000 --name ${containerName} react-app:${CUSTOM_VERSION}.${BUILD_NUMBER}"
+                }
             }
         }
     }
