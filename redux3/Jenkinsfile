@@ -16,7 +16,7 @@ pipeline {
                     // Build the Docker image
                     
                     sh 'id $USER'
-                    sh 'docker build -t react-app:${BUILD_NUMBER} redux3/'
+                    sh 'docker build -t react-app:1.0.${BUILD_NUMBER} redux3/'
                 }
             }
         }
