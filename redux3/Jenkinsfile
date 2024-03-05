@@ -16,7 +16,16 @@ pipeline {
                     // Build the Docker image
                     
                     sh 'id $USER'
-                    sh 'docker build -t react-app:1.0.${BUILD_NUMBER} redux3/'
+                    sh 'docker build -t react-app:2.0.${BUILD_NUMBER} redux3/'
+                }
+            }
+        }
+        stage('remove older Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    
+                   sh 'docker rmi $(docker images -q | tail -n +5)'
                 }
             }
         }
