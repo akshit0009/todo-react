@@ -20,7 +20,7 @@ pipeline {
                 }
             }
         }
-        stage('remove older Docker Image') {
+        /* stage('remove older Docker Image') {
             steps {
                 script {
                     // Build the Docker image
@@ -28,8 +28,7 @@ pipeline {
                    sh 'docker rmi $(docker images -q | tail -n +5)'
                 }
             }
-        }
-
+        } */
         stage('Run Docker Container') {
             steps {
                 script {
