@@ -14,7 +14,7 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image
-                    sh 'sudo usermod -aG docker jenkins && newgrp docker' 
+                    
                     sh 'id $USER'
                     sh 'docker build -t react-app redux3/'
                 }
