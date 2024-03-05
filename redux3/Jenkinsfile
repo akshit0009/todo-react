@@ -16,7 +16,7 @@ pipeline {
                     // Build the Docker image
                     
                     sh 'id $USER'
-                    sh 'docker build -t react-app redux3/'
+                    sh 'docker build -t react-app:${BUILD_NUMBER} redux3/'
                 }
             }
         }
@@ -31,7 +31,7 @@ pipeline {
                     sh "docker rm ${containerName} || true"
 
                     // Run the Docker container with AWS CloudWatch Logs integration
-                    sh "docker run -dit --log-driver=awslogs --log-opt awslogs-group=my-logs-group --log-opt awslogs-create-group=true --log-opt awslogs-region=ap-south-1 --log-opt awslogs-stream=${containerName}-stream -p 3000:3000 --name ${containerName} react-app "                }
+                    sh "docker run -dit --log-driver=awslogs --log-opt awslogs-group=my-logs-group --log-opt awslogs-create-group=true --log-opt awslogs-region=us-east-1 --log-opt awslogs-stream=${containerName}-stream -p 3000:3000 --name ${containerName} react-app:${BUILD_NUMBER} "                }
             }
         }
     }
